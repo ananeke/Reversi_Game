@@ -8,8 +8,8 @@ namespace Reversi_Game
 {
     public class ReversiEngine
     {
-        public int widthBoard { get; private set; }
-        public int heightBoard { get; private set; }
+        public int WidthBoard { get ; set; }
+        public int HeightBoard { get; set; }
 
         private int[,] board;
         public int numberPlayerOfNextRound { get; private set; } = 1;
@@ -21,8 +21,8 @@ namespace Reversi_Game
 
         private bool isFieldCorrect(int horizontal, int vertical)
         {
-            return horizontal >= 0 && horizontal < widthBoard &&
-                   vertical >= 0 && vertical < heightBoard;
+            return horizontal >= 0 && horizontal < WidthBoard &&
+                   vertical >= 0 && vertical < HeightBoard;
         }
 
         public int fieldState(int horizontal, int vertical)
@@ -34,14 +34,14 @@ namespace Reversi_Game
     
         private void clearBoard()
         {
-            for (int i = 0; i < widthBoard; i++)
-                for (int j = 0; j < heightBoard; j++)
+            for (int i = 0; i < WidthBoard; i++)
+                for (int j = 0; j < HeightBoard; j++)
                     board[i, j] = 0;
-            int centerWidth = widthBoard / 2;
-            int centerHeight = heightBoard / 2;
+            int centerWidth = WidthBoard / 2;
+            int centerHeight = HeightBoard / 2;
 
             board[centerWidth - 1, centerHeight - 1] = board[centerWidth, centerHeight] = 1;
-            board[centerWidth - 1, centerHeight] = board[centerWidth, centerHeight -1] = 2;
+            board[centerWidth - 1, centerHeight] = board[centerWidth, centerHeight] = 2;
         }
 
         public ReversiEngine(int numberFirstPlayer, int widthBoard = 8, int heightBoard = 8)
@@ -50,6 +50,8 @@ namespace Reversi_Game
                 throw new Exception("Zły numer gracza! Musisz wybrać 1");
 
             board = new int[widthBoard, heightBoard];
+            WidthBoard = widthBoard;
+            HeightBoard = heightBoard;
 
             clearBoard();
 
@@ -107,7 +109,7 @@ namespace Reversi_Game
 
                     if (canPutStone)
                     {
-                        int max_index = Math.Max(Math.Abs(i - horizontal, Math.Abs(j - vertical));
+                        int max_index = Math.Max(Math.Abs(i - horizontal), Math.Abs(j - vertical));
 
                         if (!onlyTest)
                         {
@@ -138,8 +140,8 @@ namespace Reversi_Game
         private void calculateNumbersOfFields()
         {
             for (int i = 0; i < numberFields.Length; ++i) numberFields[i] = 0;
-            for(int i = 0; i < widthBoard; ++i)
-                for (int j = 0; j < heightBoard; ++j)
+            for(int i = 0; i < WidthBoard; ++i)
+                for (int j = 0; j < HeightBoard; ++j)
                     numberFields[board[i, j]]++;
         }
 

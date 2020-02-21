@@ -20,7 +20,7 @@ namespace Reversi_Game
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ReversiEngine engine = new ReversiEngine(1);
+        private ReversiEngine engine;
 
         private SolidColorBrush[] colors = { Brushes.Ivory, Brushes.Purple, Brushes.Orange };
         string[] namesPlayer = { "", "purple", "orange" };
@@ -29,7 +29,7 @@ namespace Reversi_Game
         {
             get
             {
-                return board[engine.widthBoard - 1, engine.heightBoard - 1] != null;
+                return board[engine.WidthBoard - 1, engine.HeightBoard - 1] != null;
             }
         }
 
@@ -37,8 +37,8 @@ namespace Reversi_Game
         {
             if (!boardOn) return;
 
-            for (int i = 0; i < engine.widthBoard; i++)
-                for(int j = 0; j < engine.heightBoard; j++)
+            for (int i = 0; i < engine.WidthBoard; i++)
+                for(int j = 0; j < engine.HeightBoard; j++)
                 {
                     board[i, j].Background = colors[engine.fieldState(i, j)];
                     board[i, j].Content = engine.fieldState(i, j).ToString();
@@ -51,6 +51,28 @@ namespace Reversi_Game
         public MainWindow()
         {
             InitializeComponent();
+
+            engine = new ReversiEngine(1);
+
+            for (int i = 0; i < engine.WidthBoard; i++)
+                Board.ColumnDefinitions.Add(new ColumnDefinition());
+
+            for(int j = 0; j < engine.HeightBoard; j++)
+                Board.RowDefinitions.Add(new RowDefinition());
+
+            board = new Button[engine.WidthBoard, engine.HeightBoard];
+            for (int i = 0; i < engine.WidthBoard; i++)
+                for (int j = 0; j < engine.HeightBoard; j++)
+                {
+                    Button button = new Button();
+                    button.Margin = new Thickness(0);
+                    Board.Children.Add(button);
+                    Grid.SetColumn(button, i);
+                    Grid.SetRow(button, j);
+                    board[i,j] = button;
+                }
+
+            contentBoard();           
         }
     }
 }
