@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Reversi_Game
 {
@@ -56,6 +52,7 @@ namespace Reversi_Game
             clearBoard();
 
             numberPlayerOfNextRound = numberFirstPlayer;
+            calculateNumbersOfFields();
         }
 
         private void changeCurrentPlayer()
@@ -124,13 +121,17 @@ namespace Reversi_Game
             }
 
             if (howManyFields > 0 && !onlyTest)
+            {
                 changeCurrentPlayer();
+                calculateNumbersOfFields();
+            }
+
 
             return howManyFields;
 
         }
 
-        protected bool putStone(int horizontal, int vertical)
+        public bool putStone(int horizontal, int vertical)
         {
             return putStone(horizontal, vertical, false) > 0;
         }
@@ -148,5 +149,56 @@ namespace Reversi_Game
         public int numberEmptyFields { get { return numberFields[0]; }}
         public int numberFieldsOfPlayer1 { get { return numberFields[1]; } }
         public int numberFieldsOfPlayer2 { get { return numberFields[2]; } }
+
+        private bool canCurrentPlayerMakeMove()
+        {
+            int numberOfCorrectFields = 0;
+            for (int i = 0; i < WidthBoard; i++)
+                for (int j = 0; j < HeightBoard; j++)
+                    if (board[i, j] == 0 && putStone(i, j, true) > 0)
+                        numberOfCorrectFields++;
+
+            return numberOfCorrectFields > 0;
+        }
+
+        public void Pas()
+        {
+            if (canCurrentPlayerMakeMove())
+                throw new Exception("Gracz nie może oddać spasować, jeżeli istnieje możliwość ruchu.");
+            changeCurrentPlayer();
+        }
+
+        public enum situationOnBoard
+        {
+            MoveIsPossible,
+            CurrentPlayerCanNotMove,
+            BothPlayersCanNotMove,
+            AllFieldsAreBusy
+        }
+
+        public situationOnBoard checkSituationOnBoard()
+        {
+            if (numberEmptyFields == 0) return situationOnBoard.AllFieldsAreBusy;
+
+            bool canMove = canCurrentPlayerMakeMove();
+            if (canMove) return situationOnBoard.MoveIsPossible;
+            else
+            {
+                changeCurrentPlayer();
+                bool canOpponentMove = canCurrentPlayerMakeMove();
+                changeCurrentPlayer();
+                if (canOpponentMove) return situationOnBoard.CurrentPlayerCanNotMove;
+                else return situationOnBoard.BothPlayersCanNotMove;
+            }
+        }
+
+        public int numberPlayerWithAdvantage
+        {
+            get
+            {
+                if (numberFieldsOfPlayer1 == numberFieldsOfPlayer2) return 0;
+                else return (numberFieldsOfPlayer1 > numberFieldsOfPlayer2) ? 1 : 2;
+            }
+        }
     }
 }

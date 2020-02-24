@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Reversi_Game
 {
@@ -48,6 +38,90 @@ namespace Reversi_Game
             numberFieldsOrange.Text = engine.numberFieldsOfPlayer2.ToString();
         }
 
+        private struct coordinatesFields
+        {
+            public int horizontal, vertical;
+        }
+
+        private static string symbolField(int horizontal, int vertical)
+        {
+            if (horizontal > 25 || vertical > 8) return String.Format( "({0}, {1}" + horizontal.ToString() ,vertical.ToString());
+            return "" + "ABCDEFGHIJKLMNPRSTUWXYZ"[horizontal] + "123456789"[vertical];
+        }
+
+        void clikFieldsBoard(object sender, RoutedEventArgs e)
+        {
+            Button clikedButton = sender as Button;
+            coordinatesFields coordinates = (coordinatesFields)clikedButton.Tag;
+            int clikedHorizontal = coordinates.horizontal;
+            int clikedVertical = coordinates.vertical;
+
+            int rememberedNumberPlayer = engine.numberPlayerOfNextRound;
+            if (engine.putStone(clikedHorizontal, clikedVertical))
+            {
+                contentBoard();
+
+                switch (rememberedNumberPlayer)
+                {
+                    case 1:
+                        listOfMovesPurple.Items.Add(symbolField(clikedHorizontal, clikedVertical));
+                        break;
+                    case 2:
+                        listOFMoveOrange.Items.Add(symbolField(clikedHorizontal, clikedVertical));
+                        break;
+                }
+                listOfMovesPurple.SelectedIndex = listOfMovesPurple.Items.Count - 1;
+                listOFMoveOrange.SelectedIndex = listOFMoveOrange.Items.Count - 1;
+
+                ReversiEngine.situationOnBoard situationOnBoard = engine.checkSituationOnBoard();
+                bool endGame = false;
+
+                switch(situationOnBoard)
+                {
+                    case ReversiEngine.situationOnBoard.CurrentPlayerCanNotMove:
+                        MessageBox.Show(string.Format("Gracz {0} zmuszony jest do oddania ruchu", namesPlayer[engine.numberPlayerOfNextRound]));
+                        engine.Pas();
+                        contentBoard();
+                        break;
+                    case ReversiEngine.situationOnBoard.BothPlayersCanNotMove:
+                        MessageBox.Show("Obaj gracze nie mogą wykonać ruchu");
+                        endGame = true;
+                        break;
+                    case ReversiEngine.situationOnBoard.AllFieldsAreBusy:
+                        endGame = true;
+                        break;
+                }
+
+                if (endGame)
+                {
+                    int numberOfWinner = engine.numberPlayerWithAdvantage;
+                    if (numberOfWinner != 0) MessageBox.Show(string.Format("Wygrał gracz {0}", namesPlayer[numberOfWinner]), Title, MessageBoxButton.OK, MessageBoxImage.Information);
+                    else MessageBox.Show("Remis", Title, MessageBoxButton.OK, MessageBoxImage.Information);
+                    if(MessageBox.Show("Czy rozpocząć grę od nowa?", "Reversi", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.Yes) == MessageBoxResult.Yes)
+                    {
+                        prepareBoardToNewGame(1, engine.WidthBoard, engine.HeightBoard);
+                    }
+                    else
+                    {
+                        Board.IsEnabled = false;
+                        ColorOfPlayer.IsEnabled = false;
+                    }
+                }
+            }              
+        }
+
+        private void prepareBoardToNewGame(int numberOfFirstPlayer, int widthBoard = 8, int heightBoard = 8)
+        {
+            engine = new ReversiEngine(numberOfFirstPlayer, widthBoard, heightBoard);
+            listOfMovesPurple.Items.Clear();
+            listOFMoveOrange.Items.Clear();
+            contentBoard();
+            Board.IsEnabled = true;
+            ColorOfPlayer.IsEnabled = true;
+        }
+
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -69,10 +143,13 @@ namespace Reversi_Game
                     Board.Children.Add(button);
                     Grid.SetColumn(button, i);
                     Grid.SetRow(button, j);
+                    button.Tag = new coordinatesFields { horizontal = i, vertical = j };
+                    button.Click += new RoutedEventHandler(clikFieldsBoard);
                     board[i,j] = button;
                 }
 
-            contentBoard();           
+            contentBoard();
+
         }
     }
 }
