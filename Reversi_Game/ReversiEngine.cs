@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Reversi_Game
 {
@@ -198,6 +199,71 @@ namespace Reversi_Game
             {
                 if (numberFieldsOfPlayer1 == numberFieldsOfPlayer2) return 0;
                 else return (numberFieldsOfPlayer1 > numberFieldsOfPlayer2) ? 1 : 2;
+            }
+        }
+    
+        private struct possibleMove : IComparable<possibleMove>
+        {
+            public int horizontal, vertical, priority;
+
+            public possibleMove(int horizontal, int vertical, int priority)
+            {
+                this.horizontal = horizontal;
+                this.vertical = vertical;
+                this.priority = priority;
+            }
+
+            public int CompareTo(possibleMove anotherMove)
+            {
+                return anotherMove.priority - this.priority;
+            }
+        }
+
+        public void suggestBestMove(out int bestMoveHorizontal, out int bestMoveVertical)
+        {
+            List<possibleMove> possibleMoves = new List<possibleMove>();
+            int changePriority = WidthBoard * HeightBoard;
+
+            for(int horizontal = 0; horizontal < WidthBoard; horizontal++)
+                for(int vertical = 0; vertical < HeightBoard; vertical++)
+                    if(fieldState(horizontal,vertical) == 0)
+                    {
+                        int priority = putStone(horizontal, vertical, true);
+                        if(priority > 0)
+                        {
+                            possibleMove pm = new possibleMove(horizontal, vertical, priority);
+
+                            if ((pm.horizontal == 0 || pm.horizontal == WidthBoard - 1) && (pm.vertical == 0 || pm.vertical == HeightBoard - 1))
+                                pm.priority += changePriority * changePriority;
+
+                            if ((pm.horizontal == 1 || pm.horizontal == WidthBoard - 2) && (pm.vertical == 1 || pm.vertical == HeightBoard - 2))
+                                pm.priority -= changePriority * changePriority;
+
+                            if ((pm.horizontal == 0 || pm.horizontal == WidthBoard - 1) && (pm.vertical == 1 || pm.vertical == HeightBoard - 2))
+                                pm.priority -= changePriority * changePriority;
+
+                            if ((pm.horizontal == 1 || pm.horizontal == WidthBoard - 2) && (pm.vertical == 0 || pm.vertical == HeightBoard - 1))
+                                pm.priority -= changePriority * changePriority;
+
+                            if ((pm.horizontal == 0 || pm.horizontal == WidthBoard - 1) || (pm.vertical == 0 || pm.vertical == HeightBoard - 1))
+                                pm.priority += changePriority * changePriority;
+
+                            if ((pm.horizontal == 1 || pm.horizontal == WidthBoard - 2) || (pm.vertical == 1 || pm.vertical == HeightBoard - 2))
+                                pm.priority -= changePriority * changePriority;
+
+                            possibleMoves.Add(pm);
+                        }
+
+                    }
+            if(possibleMoves.Count > 0)
+            {
+                possibleMoves.Sort();
+                bestMoveHorizontal = possibleMoves[0].horizontal;
+                bestMoveVertical = possibleMoves[0].vertical;
+            }
+            else
+            {
+                throw new Exception("Brak możliwych ruchów");
             }
         }
     }

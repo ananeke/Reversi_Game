@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Reversi_Game
@@ -120,7 +121,54 @@ namespace Reversi_Game
             ColorOfPlayer.IsEnabled = true;
         }
 
+        private coordinatesFields? setBestMove()
+        {
+            if (!Board.IsEnabled) return null;
 
+            if(engine.numberEmptyFields == 0)
+            {
+                MessageBox.Show("Nie ma juz wolnych pól na planszy", Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null;
+            }
+
+            try
+            {
+                int horizontal, vertical;
+                engine.suggestBestMove(out horizontal, out vertical);
+                return new coordinatesFields() { horizontal = horizontal, vertical = vertical };
+            }
+            catch
+            {
+                MessageBox.Show("Bieżący gracz nie może wykonać ruchu", Title, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null;
+            }
+        }
+
+        private void markBestMove()
+        {
+            coordinatesFields? CoordinatesFields = setBestMove();
+            if (CoordinatesFields.HasValue)
+            {
+                SolidColorBrush colorPrompt = colors[engine.numberPlayerOfNextRound].Lerp(colors[0], 0.5f);
+                board[CoordinatesFields.Value.horizontal, CoordinatesFields.Value.vertical].Background = colorPrompt;
+            }
+        }
+
+        private void makeBestMove()
+        {
+            coordinatesFields? CoordinatesFields = setBestMove();
+            if (CoordinatesFields.HasValue)
+            {
+                Button button = board[CoordinatesFields.Value.horizontal, CoordinatesFields.Value.vertical];
+                clikFieldsBoard(button, null);
+            }
+        }
+
+        private void buttonColorPlayer_Click(object sender, RoutedEventArgs e)
+        {
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control)) makeBestMove();
+            else markBestMove();
+        }
 
         public MainWindow()
         {
