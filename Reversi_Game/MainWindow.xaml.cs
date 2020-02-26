@@ -170,6 +170,30 @@ namespace Reversi_Game
             else markBestMove();
         }
 
+        #region Metody od MenuItem
+        private void MenuItem_GameForTwo(object sender, RoutedEventArgs e)
+        {
+            Title = "Reversi";
+            prepareBoardToNewGame(1);
+        }
+        private void MenuItem_Close(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
+
+        private void MenuItem_PromptMove(object sender, RoutedEventArgs e)
+        {
+            markBestMove();
+        }
+
+        private void MenuItem_AboutGame(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(Properties.Resources.String1);
+        }
+
+
+        #endregion
+
         public MainWindow()
         {
             InitializeComponent();

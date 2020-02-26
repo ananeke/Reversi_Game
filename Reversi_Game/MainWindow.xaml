@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Reversi_Game"
         mc:Ignorable="d"
-        Title="Reversi" Height="450" Width="800">
+        Title="Reversi" Height="450" Width="800" Background="Lavender">
     <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="LightSkyBlue">
+            <MenuItem Header="New Game" Click="MenuItem_GameForTwo"/>
+            <MenuItem Header="Prompt Move" Click="MenuItem_PromptMove"/>
+            <MenuItem Header="About Game" Click="MenuItem_AboutGame"/>
+            <MenuItem Header="Close" Click="MenuItem_Close"/>
+        </Menu>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
